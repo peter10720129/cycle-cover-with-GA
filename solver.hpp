@@ -82,14 +82,14 @@ public:
             std::vector< std::pair<int,int> > mst ;
             visited[cur] = true ;
             for ( size_t i = 0 ; i < n ;i++ ) {
-                if ( distance[i].first-graph(cur,i) > 1e-5 && graph(cur,i) > 0 && !visited[i] )
+                if ( distance[i].first > graph(cur,i) && graph(cur,i) > 0 && !visited[i] )
                     distance[i] = std::make_pair(graph(cur,i),cur) ;
             }
 
             float min_weight = 1e9 ;
             int nextN = -1 ;
             for ( size_t i = 0 ; i < n ; i++ ) {
-                if ( min_weight-distance[i].first > 1e-5 && !visited[i] ) {
+                if ( min_weight > distance[i].first && !visited[i] ) {
                     min_weight = distance[i].first ;
                     nextN = i ;
                 }
@@ -104,12 +104,12 @@ public:
                 min_weight = 1e9 ;
                 nextN = -1 ;
                 for ( size_t i = 0 ; i < n ;i++ ) {
-                    if ( distance[i].first-graph(cur,i) > 1e-5 && graph(cur,i) > 0 && !visited[i] )
+                    if ( distance[i].first> graph(cur,i)  && graph(cur,i) > 0 && !visited[i] )
                         distance[i] = std::make_pair(graph(cur,i),cur) ;
                 }
 
                 for ( size_t i = 0 ; i < n ; i++ ) {
-                    if ( min_weight-distance[i].first > 1e-5 && !visited[i] ) {
+                    if ( min_weight > distance[i].first && !visited[i] ) {
                         min_weight = distance[i].first ;
                         nextN = i ;
                     }
@@ -196,7 +196,7 @@ public:
         problem::graph_t graph = ins.copy() ; 
         for ( size_t i = 0 ; i < graph.size(); i++ ) {
             for ( size_t j = i+1 ; j < graph.size(); j++ ) {
-                if ( ins.copy()(i,j)-threshold > 1e-5) {
+                if ( ins.copy()(i,j) > threshold ) {
                     graph(i,j) = graph(j,i) = 0 ;
                 }
             }
@@ -256,7 +256,7 @@ public:
 
             for ( int i = 0 ; i < n_vertices ; i++ ) {
                 for ( int j = i+1 ; j < n_vertices ; j++ ) {
-                    if ( ins.copy()(V_o[i],V_o[j]) -max_w > 1e-5) max_w = ins.copy()(V_o[i],V_o[j]) ;
+                    if ( ins.copy()(V_o[i],V_o[j]) > max_w ) max_w = ins.copy()(V_o[i],V_o[j]) ;
                 }
             }
 
@@ -348,21 +348,24 @@ public:
             tour_visit.push_back(EC_visit.back()) ;
 
           
-            if ( ins.get_B()-tour_cost > 1e-5 ) {
+            if ( ins.get_B() > tour_cost ) {
                 Ci.push_back(tour_visit) ;
                 if (demo) std::cout << "Add new tour to Ci , size = " << Ci.back().size() << "\n" ; 
             }
             else {
                 auto split = tour_visit ;
                 auto residual_cost = tour_cost ;
-                while ( residual_cost-ins.get_B() > 1e-5 ) {
+                while ( residual_cost > ins.get_B() ) {
                     if (demo) std::cout << "Tour cost exceed limit : " << residual_cost << "\n" ;
                     split.pop_back() ;
                     float newPath_cost = 0 ;
                     std::vector<unsigned> newPath ; 
                     newPath.push_back(split[0]) ;
                     size_t l = split.size()-1, r = 1 ;
-                    while ( ins.get_B()/2-(newPath_cost+std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) ) ) > 1e-5 ) {
+                    while ( 1 ) {
+                        float min_edge = (newPath_cost+std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) ) ) ;
+                        if ( ins.get_B()/2 <= newPath_cost+min_edge ) break ;
+
                         newPath_cost += std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) ) ;
                         if ( ins.copy()(split[l],split[l+1]) <= ins.copy()(split[r],split[r-1]) ) {
                             newPath.insert(newPath.begin(), split[l]) ;
@@ -425,6 +428,8 @@ public:
 
         float threshold = ins.get_B()/4 ;
         best = christofideMethod(threshold, ins ) ;
+
+        std::cout << "number of tours=" << best.size() << "\n" ;
         // std::cout.clear();
         return best ;
     }
