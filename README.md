@@ -49,7 +49,7 @@ make
 Test mccp instance // set demo=1 to see the process of finding cycles 
 ``` 
 make
-./cycle_cover --constructor="name=min-deploy B=1200 n=100 problem=mccp solver='name=mccp demo=0'"
+./cycle_cover --constructor="name=min-deploy B=1200 n=100 problem=mccp solver='name=mccp demo=0'" --result 
 ```
 
 Test mmccp instance 
