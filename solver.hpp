@@ -357,14 +357,33 @@ public:
                 auto residual_cost = tour_cost ;
                 while ( residual_cost > ins.get_B() ) {
                     if (demo) std::cout << "Tour cost exceed limit : " << residual_cost << "\n" ;
+
                     split.pop_back() ;
                     float newPath_cost = 0 ;
                     std::vector<unsigned> newPath ; 
                     newPath.push_back(split[0]) ;
+            
                     size_t l = split.size()-1, r = 1 ;
                     while ( 1 ) {
-                        float min_edge = (newPath_cost+std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) ) ) ;
-                        if ( ins.get_B()/2 <= newPath_cost+min_edge ) break ;
+                        
+                        float min_edge = std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) )  ;
+                        if ( ins.get_B()/2 <= newPath_cost+min_edge ) {
+                          
+                            auto temp_cost = newPath_cost+min_edge  ;
+                            auto tempPath = newPath ;
+                            if ( ins.copy()(split[l],split[l+1]) <= ins.copy()(split[r],split[r-1]) ) {
+                                tempPath.insert(tempPath.begin(), split[l]) ;
+                            }
+                            else {
+                                tempPath.push_back(split[r]) ;
+                            }
+
+                            temp_cost += ins.copy()(tempPath[0],tempPath.back()) ;
+
+                
+                            if ( temp_cost >= ins.get_B() ) break ;
+                        }
+
 
                         newPath_cost += std::min(ins.copy()(split[l],split[l+1]),ins.copy()(split[r],split[r-1]) ) ;
                         if ( ins.copy()(split[l],split[l+1]) <= ins.copy()(split[r],split[r-1]) ) {

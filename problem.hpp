@@ -87,7 +87,7 @@ public:
             for (unsigned i = 0; i < cyc.size() - 1; ++i) {
                 sm += g(cyc[i], cyc[i + 1]);
             }
-            sm += g(cyc.front(), cyc.back());
+            // sm += g(cyc.front(), cyc.back());
             re = std::max(re, sm);
         }
         return re;
